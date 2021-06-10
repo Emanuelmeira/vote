@@ -22,11 +22,13 @@ public class PautaController {
     }
 
     @PostMapping(value = "/opensession/{pautaId}")
-    public ResponseEntity<Object> openSession(@PathVariable("pautaId") Long pautaId, @Valid @RequestBody DataToOpenSession DataToOpenSession ){
+    public ResponseEntity<Pauta> openSession(@PathVariable("pautaId") Long pautaId, @Valid @RequestBody DataToOpenSession DataToOpenSession ){
+        return ResponseEntity.ok(pautaService.openSession(pautaId, DataToOpenSession));
+    }
 
-        pautaService.openSession(pautaId, DataToOpenSession);
-
-        return ResponseEntity.noContent().build();
+    @GetMapping(value = "/result/{pautaId}")
+    public ResponseEntity<String> result(@PathVariable("pautaId") Long pautaId){
+        return ResponseEntity.ok(pautaService.result(pautaId));
     }
 
 }

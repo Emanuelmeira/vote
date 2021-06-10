@@ -1,15 +1,9 @@
 package com.example.vote.domain.enums;
 
-public enum DefaultValues {
-    PAUTA_VALUE_TIME_DEFAULT(1L);
+public class DefaultValues {
 
-    private long value;
+    public static final Long PAUTA_VALUE_TIME_DEFAULT = 1L;
+    public static final String APPROVED = "Pauta Aprovada";
+    public static  final String NOT_APPROVED = "Pauta nao Aprovada";
 
-    DefaultValues(long time) {
-        this.value = time;
-    }
-
-    public long getValue() {
-        return value;
-    }
 }
