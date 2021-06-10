@@ -6,6 +6,7 @@ import org.hibernate.validator.constraints.Length;
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 @Entity
 @Table(name = "PAUTA")
@@ -15,8 +16,8 @@ public class Pauta {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank(message = "Informe um tema para a Pauta") // TODO revisar
-    @Length(max=4) // TODO revisar
+    @NotBlank(message = "Informe um tema para a Pauta")
+    @Length(max=50, min = 3, message = "Campo deve ter entre 3 e 50 caracteres")
     @Column(name = "theme")
     private String theme;
 
@@ -67,5 +68,29 @@ public class Pauta {
 
     public void setOpen(boolean open) {
         this.open = open;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Pauta pauta = (Pauta) o;
+        return Objects.equals(id, pauta.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, theme, sessionStartedTime, endsIn, open);
+    }
+
+    @Override
+    public String toString() {
+        return "Pauta{" +
+                "id=" + id +
+                ", theme='" + theme + '\'' +
+                ", sessionStartedTime=" + sessionStartedTime +
+                ", endsIn=" + endsIn +
+                ", open=" + open +
+                '}';
     }
 }

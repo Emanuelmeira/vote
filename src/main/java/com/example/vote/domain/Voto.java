@@ -3,6 +3,7 @@ package com.example.vote.domain;
 
 import com.example.vote.domain.enums.VotoType;
 import javax.persistence.*;
+import java.util.Objects;
 
 @Entity
 @Table(name = "VOTO")
@@ -52,5 +53,28 @@ public class Voto {
 
     public void setVoto(VotoType votoType) {
         this.votoType = votoType;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Voto voto = (Voto) o;
+        return Objects.equals(id, voto.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, associadoId, pautaId, votoType);
+    }
+
+    @Override
+    public String toString() {
+        return "Voto{" +
+                "id=" + id +
+                ", associadoId=" + associadoId +
+                ", pautaId=" + pautaId +
+                ", votoType=" + votoType +
+                '}';
     }
 }
