@@ -5,9 +5,6 @@ import org.hibernate.validator.constraints.Length;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
 
 @Entity
@@ -27,7 +24,10 @@ public class Pauta {
     private LocalDateTime sessionStartedTime;
 
     @Column(name = "ends_in")
-    private int endsIn;
+    private Long endsIn;
+
+    @Column(name = "open_session")
+    private boolean open;
 
     public Long getId() {
         return id;
@@ -53,11 +53,19 @@ public class Pauta {
         this.sessionStartedTime = sessionStartedTime;
     }
 
-    public int getEndsIn() {
+    public Long getEndsIn() {
         return endsIn;
     }
 
-    public void setEndsIn(int endsIn) {
+    public void setEndsIn(Long endsIn) {
         this.endsIn = endsIn;
+    }
+
+    public boolean isOpen() {
+        return open;
+    }
+
+    public void setOpen(boolean open) {
+        this.open = open;
     }
 }
