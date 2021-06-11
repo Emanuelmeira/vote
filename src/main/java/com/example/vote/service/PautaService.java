@@ -2,8 +2,9 @@ package com.example.vote.service;
 
 
 import com.example.vote.domain.Pauta;
-import com.example.vote.domain.dto.DataToOpenSession;
-import com.example.vote.domain.dto.VotingResult;
+import com.example.vote.domain.dto.OpenSessionTimeDTO;
+import com.example.vote.domain.dto.PautaDTO;
+import com.example.vote.domain.dto.VotingResultDTO;
 import com.example.vote.domain.enums.DefaultValues;
 import com.example.vote.domain.enums.Message;
 import com.example.vote.domain.enums.VotoType;
@@ -27,7 +28,11 @@ public class PautaService {
     @Autowired
     private VotoRepository votoRepository;
 
-    public Pauta save(Pauta pauta){
+    public Pauta save(PautaDTO pautaDto){
+
+        var pauta = new Pauta();
+
+        pauta.setTheme(pautaDto.getTheme());
         pauta.setOpen(false);
         pauta.setEndsIn(0L);
         pauta.setSessionStartedTime(null);
@@ -37,7 +42,7 @@ public class PautaService {
         return pauta;
     }
 
-    public Pauta openSession(Long pautaId, DataToOpenSession dataToOpenSession) {
+    public Pauta openSession(Long pautaId, OpenSessionTimeDTO openSessionTimeDTO) {
 
         var pauta = checkExistingPauta(pautaId);
 
@@ -47,7 +52,7 @@ public class PautaService {
         }
 
         pauta.setOpen(true);
-        pauta.setEndsIn(Optional.ofNullable(dataToOpenSession.getTimeInMinutes()).orElse(DefaultValues.PAUTA_VALUE_TIME_DEFAULT));
+        pauta.setEndsIn(Optional.ofNullable(openSessionTimeDTO.getTimeInMinutes()).orElse(DefaultValues.PAUTA_VALUE_TIME_DEFAULT));
         pauta.setSessionStartedTime(LocalDateTime.now());
 
         logger.info("Sessão aberta para pauta {}", pauta );
@@ -58,10 +63,10 @@ public class PautaService {
         return pautaRepository.findById(pautaId).orElseThrow(Message.PAUTA_NOT_FOUND::asBusinessException);
     }
 
-    public VotingResult generateResult(Long pautaId) {
+    public VotingResultDTO generateResult(Long pautaId) {
 
         var pauta = checkExistingPauta(pautaId);
-        VotingResult votingResult = new VotingResult();
+        VotingResultDTO votingResultDTO = new VotingResultDTO();
 
         if(!pauta.isOpen()) {
             logger.error("Pauta esta fechada");
@@ -81,12 +86,12 @@ public class PautaService {
         var no = votos.stream().filter( x -> x.getVoto().equals(VotoType.NAO)).count();
 
         if(yes > no) {
-            votingResult.setResult(DefaultValues.APPROVED);
+            votingResultDTO.setResult(DefaultValues.APPROVED);
         }else{
-            votingResult.setResult(DefaultValues.NOT_APPROVED);
+            votingResultDTO.setResult(DefaultValues.NOT_APPROVED);
         }
 
         logger.info("Resultado gerado para pauta {}", pauta );
-        return votingResult;
+        return votingResultDTO;
     }
 }

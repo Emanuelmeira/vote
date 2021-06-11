@@ -3,7 +3,7 @@ package com.example.vote.domain.dto;
 import com.example.vote.domain.enums.VotoType;
 import javax.validation.constraints.NotNull;
 
-public class DataToVote {
+public class DataToVoteDTO {
 
     @NotNull
     private VotoType votoType;
@@ -16,11 +16,11 @@ public class DataToVote {
         this.votoType = votoType;
     }
 
-    public DataToVote(VotoType votoType) {
+    public DataToVoteDTO(VotoType votoType) {
         this.votoType = votoType;
     }
 
-    public DataToVote() {
+    public DataToVoteDTO() {
 
     }
 }

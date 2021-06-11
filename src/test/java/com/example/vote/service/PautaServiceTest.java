@@ -1,7 +1,8 @@
 package com.example.vote.service;
 
 import com.example.vote.domain.Pauta;
-import com.example.vote.domain.dto.DataToOpenSession;
+import com.example.vote.domain.dto.OpenSessionTimeDTO;
+import com.example.vote.domain.dto.PautaDTO;
 import com.example.vote.domain.enums.Message;
 import com.example.vote.domain.exception.BusinessException;
 import com.example.vote.repository.PautaRepository;
@@ -35,7 +36,7 @@ public class PautaServiceTest {
         var pauta = new Pauta();
         pauta.setOpen(true);
 
-        var dataToOpenSession = new DataToOpenSession();
+        var dataToOpenSession = new OpenSessionTimeDTO();
 
         when(pautaRepository.findById(any())).thenReturn(Optional.of(pauta));
 
@@ -52,7 +53,7 @@ public class PautaServiceTest {
 
         var pauta = new Pauta();
         pauta.setOpen(false);
-        var dataToOpenSession = new DataToOpenSession();
+        var dataToOpenSession = new OpenSessionTimeDTO();
 
         when(pautaRepository.findById(any())).thenReturn(Optional.of(pauta));
 
@@ -63,7 +64,7 @@ public class PautaServiceTest {
 
     @Test
     public void save_pauta_success(){
-        var pauta = new Pauta();
+        var pauta = new PautaDTO();
         var pautaReturn = new Pauta();
         pautaReturn.setId(1L);
 

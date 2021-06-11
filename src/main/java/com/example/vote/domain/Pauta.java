@@ -1,10 +1,7 @@
 package com.example.vote.domain;
 
 
-import org.hibernate.validator.constraints.Length;
-
 import javax.persistence.*;
-import javax.validation.constraints.NotBlank;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
@@ -16,8 +13,6 @@ public class Pauta {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank(message = "Informe um tema para a Pauta")
-    @Length(max=50, min = 3, message = "Campo deve ter entre 3 e 50 caracteres")
     @Column(name = "theme")
     private String theme;
 

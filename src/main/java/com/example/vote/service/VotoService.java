@@ -2,7 +2,7 @@ package com.example.vote.service;
 
 import com.example.vote.domain.Pauta;
 import com.example.vote.domain.Voto;
-import com.example.vote.domain.dto.DataToVote;
+import com.example.vote.domain.dto.DataToVoteDTO;
 import com.example.vote.domain.enums.Message;
 import com.example.vote.repository.VotoRepository;
 import org.slf4j.Logger;
@@ -24,7 +24,7 @@ public class VotoService {
     @Autowired
     private VotoRepository votoRepository;
 
-    public void vote(DataToVote votoType, Long associadoId, Long pautaId) {
+    public void vote(DataToVoteDTO votoType, Long associadoId, Long pautaId) {
 
         var pauta = pautaService.checkExistingPauta(pautaId);
 

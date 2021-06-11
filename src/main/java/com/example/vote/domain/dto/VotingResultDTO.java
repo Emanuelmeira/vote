@@ -1,6 +1,6 @@
 package com.example.vote.domain.dto;
 
-public class VotingResult {
+public class VotingResultDTO {
 
     private String result;
 

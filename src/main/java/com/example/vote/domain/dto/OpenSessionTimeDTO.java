@@ -1,6 +1,6 @@
 package com.example.vote.domain.dto;
 
-public class DataToOpenSession {
+public class OpenSessionTimeDTO {
 
     private Long timeInMinutes;
 
