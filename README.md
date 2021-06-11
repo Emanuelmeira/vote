@@ -65,8 +65,9 @@ OBS: é obrigatório informa um theme e tem limite de tamanho entre 3 e 50 carac
 ### Abrir votação
 Para abri um processo de votação, é necessário fazer um POST, informando no path o id da pauta e também informando um body em JSON:
 LOCAL: http://localhost:8080/api/v1/pauta/opensession/{pautaId}
-JSON: https://application-vote.herokuapp.com/api/v1/pauta/opensession/{pautaId}
+Heroku: https://application-vote.herokuapp.com/api/v1/pauta/opensession/{pautaId}
 
+JSON:
 {
     "timeInMinutes": 5
 }
