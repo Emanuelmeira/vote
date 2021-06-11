@@ -58,13 +58,13 @@ public class PautaService {
         return pautaRepository.findById(pautaId).orElseThrow(Message.PAUTA_NOT_FOUND::asBusinessException);
     }
 
-    public VotingResult result(Long pautaId) {
+    public VotingResult generateResult(Long pautaId) {
 
         var pauta = checkExistingPauta(pautaId);
         VotingResult votingResult = new VotingResult();
 
         if(!pauta.isOpen()) {
-            logger.error("Pauta esta fecahda");
+            logger.error("Pauta esta fechada");
             throw Message.PAUTA_IS_CLOSED.asBusinessException();
         }
 

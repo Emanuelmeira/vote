@@ -28,7 +28,7 @@ public class PautaController {
     }
 
     @PostMapping(value = "/opensession/{pautaId}")
-    public ResponseEntity<Pauta> openSession(@PathVariable("pautaId") Long pautaId, @RequestBody DataToOpenSession DataToOpenSession ){
+    public ResponseEntity<Pauta> openSession(@PathVariable("pautaId") Long pautaId, DataToOpenSession DataToOpenSession ){
         logger.info("Processo de abertura de votacao em pauta iniciado");
         return ResponseEntity.ok(pautaService.openSession(pautaId, DataToOpenSession));
     }
@@ -36,7 +36,7 @@ public class PautaController {
     @GetMapping(value = "/result/{pautaId}")
     public ResponseEntity<VotingResult> result(@PathVariable("pautaId") Long pautaId){
         logger.info("Processo de resultado de votacao iniciado");
-        return ResponseEntity.ok(pautaService.result(pautaId));
+        return ResponseEntity.ok(pautaService.generateResult(pautaId));
     }
 
 }
