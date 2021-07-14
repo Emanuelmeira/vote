@@ -6,7 +6,7 @@ import com.example.vote.service.VotoService;
 import io.swagger.annotations.Api;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,8 +19,11 @@ import javax.validation.Valid;
 public class VotoController {
     Logger logger = LoggerFactory.getLogger(VotoController.class);
 
-    @Autowired
-    private VotoService votoService;
+    private final VotoService votoService;
+
+    public VotoController(final VotoService votoService) {
+        this.votoService = votoService;
+    }
 
     @PostMapping(value = "/{associadoId}/{pautaId}")
     public ResponseEntity<Object> vote(@Valid @RequestBody DataToVoteDTO dataToVoto,

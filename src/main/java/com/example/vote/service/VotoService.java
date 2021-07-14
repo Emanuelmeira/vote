@@ -7,7 +7,6 @@ import com.example.vote.domain.enums.Message;
 import com.example.vote.repository.VotoRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -18,21 +17,23 @@ public class VotoService {
 
     Logger logger = LoggerFactory.getLogger(VotoService.class);
 
-    @Autowired
-    private PautaService pautaService;
+    private final PautaService pautaService;
+    private final VotoRepository votoRepository;
 
-    @Autowired
-    private VotoRepository votoRepository;
+    public VotoService(final PautaService pautaService, final VotoRepository votoRepository) {
+        this.pautaService = pautaService;
+        this.votoRepository = votoRepository;
+    }
 
     public void vote(DataToVoteDTO votoType, Long associadoId, Long pautaId) {
 
-        var pauta = pautaService.checkExistingPauta(pautaId);
+        var pauta = pautaService.getPautaById(pautaId);
 
         sessionIsValid(pauta);
         memberCanVote(associadoId, pauta.getId());
 
         var voto = new Voto();
-        voto.setVoto(votoType.getVotoType());
+        voto.setVotoType(votoType.getVotoType());
         voto.setAssociadoId(associadoId);
         voto.setPautaId(pautaId);
 
@@ -47,36 +48,31 @@ public class VotoService {
             throw Message.INVALID_ID.asBusinessException();
         }
 
-        //verifica se o associado ja votou
-        var voto = votoRepository.findFirstByAssociadoIdAndPautaId(associadoId, pautaId);
-        if(Objects.nonNull(voto)){
-            logger.error("Associado ja votou associadoId{}", associadoId );
-            throw Message.ASSOCIADO_VOTED.asBusinessException();
-        }
+        ifAssociadoVotedThrowExeption(associadoId, pautaId);
 
         logger.info("Associado disponivel para votação associdoId{}, pauta{}", associadoId, pautaId);
     }
 
-    public void sessionIsValid(Pauta pauta){
-
-        //verifica se a pauta esta aberta para votação
-        if(!pauta.isOpen()){
-            logger.error("Pauta esta fechada Pauta{}", pauta );
-            throw Message.PAUTA_IS_CLOSED.asBusinessException();
+    private void ifAssociadoVotedThrowExeption(Long associadoId, Long pautaId) {
+        var voto = votoRepository.findFirstByAssociadoIdAndPautaId(associadoId, pautaId);
+        if(Objects.nonNull(voto)){
+            logger.error("Associado ja votou associadoId{}", associadoId);
+            throw Message.ASSOCIADO_VOTED.asBusinessException();
         }
-
-        var sessionEndTme = pauta.getSessionStartedTime().plusMinutes(pauta.getEndsIn());
-
-        //verifica se a sessão de votação ainda esta aberta
-        if(sessionEndTme.isBefore(LocalDateTime.now())){
-            logger.error("Pauta esta fechada Pauta{}", pauta );
-            throw Message.VOTING_CLOSED.asBusinessException();
-        }
-
     }
 
+    public void sessionIsValid(Pauta pauta){
+        pautaService.ifPautaIsClosedThrowException(pauta);
+        ifPautaIsClosedThrowException(pauta);
+    }
 
-
+    private void ifPautaIsClosedThrowException(Pauta pauta) {
+        var sessionEndTme = pauta.getSessionStartedTime().plusMinutes(pauta.getEndsIn());
+        if(sessionEndTme.isBefore(LocalDateTime.now())){
+            logger.error("Pauta esta fechada Pauta{}", pauta);
+            throw Message.VOTING_CLOSED.asBusinessException();
+        }
+    }
 
 
 }

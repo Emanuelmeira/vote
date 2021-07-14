@@ -39,7 +39,7 @@ public class PautaController {
     @GetMapping(value = "/result/{pautaId}")
     public ResponseEntity<VotingResultDTO> result(@PathVariable("pautaId") Long pautaId){
         logger.info("Processo de resultado de votacao iniciado");
-        return ResponseEntity.ok(pautaService.generateResult(pautaId));
+        return ResponseEntity.ok(pautaService.generateVotingResultForPauta(pautaId));
     }
 
 }

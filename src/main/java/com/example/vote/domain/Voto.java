@@ -47,11 +47,11 @@ public class Voto {
         this.pautaId = pautaId;
     }
 
-    public VotoType getVoto() {
+    public VotoType getVotoType() {
         return votoType;
     }
 
-    public void setVoto(VotoType votoType) {
+    public void setVotoType(VotoType votoType) {
         this.votoType = votoType;
     }
 

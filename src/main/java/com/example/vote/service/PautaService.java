@@ -1,6 +1,5 @@
 package com.example.vote.service;
 
-
 import com.example.vote.domain.Pauta;
 import com.example.vote.domain.dto.OpenSessionTimeDTO;
 import com.example.vote.domain.dto.PautaDTO;
@@ -12,7 +11,6 @@ import com.example.vote.repository.PautaRepository;
 import com.example.vote.repository.VotoRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -23,15 +21,17 @@ public class PautaService {
 
     Logger logger = LoggerFactory.getLogger(PautaService.class);
 
-    @Autowired
-    private PautaRepository pautaRepository;
-    @Autowired
-    private VotoRepository votoRepository;
+    private final  PautaRepository pautaRepository;
+    private final VotoRepository votoRepository;
+
+    public PautaService(final PautaRepository pautaRepository, final VotoRepository votoRepository) {
+        this.pautaRepository = pautaRepository;
+        this.votoRepository = votoRepository;
+    }
 
     public Pauta save(PautaDTO pautaDto){
 
         var pauta = new Pauta();
-
         pauta.setTheme(pautaDto.getTheme());
         pauta.setOpen(false);
         pauta.setEndsIn(0L);
@@ -44,54 +44,62 @@ public class PautaService {
 
     public Pauta openSession(Long pautaId, OpenSessionTimeDTO openSessionTimeDTO) {
 
-        var pauta = checkExistingPauta(pautaId);
+        var pauta = getPautaById(pautaId);
+        ifPautaIsOpenThrowException(pauta);
 
-        if(pauta.isOpen()){
-            logger.error("sessao já esta aberta");
-           throw Message.PAUTA_WAS_OPEN.asBusinessException();
-        }
-
+        var sessionEndTime = Optional.ofNullable(openSessionTimeDTO.getTimeInMinutes())
+                .orElse(DefaultValues.PAUTA_VALUE_TIME_DEFAULT);
+        pauta.setEndsIn(sessionEndTime);
         pauta.setOpen(true);
-        pauta.setEndsIn(Optional.ofNullable(openSessionTimeDTO.getTimeInMinutes()).orElse(DefaultValues.PAUTA_VALUE_TIME_DEFAULT));
         pauta.setSessionStartedTime(LocalDateTime.now());
 
         logger.info("Sessão aberta para pauta {}", pauta );
         return pautaRepository.save(pauta);
     }
 
-    public Pauta checkExistingPauta(Long pautaId){
+    public Pauta getPautaById(Long pautaId){
         return pautaRepository.findById(pautaId).orElseThrow(Message.PAUTA_NOT_FOUND::asBusinessException);
     }
 
-    public VotingResultDTO generateResult(Long pautaId) {
+    public VotingResultDTO generateVotingResultForPauta(Long pautaId) {
 
-        var pauta = checkExistingPauta(pautaId);
+        var pauta = getPautaById(pautaId);
+        ifPautaIsClosedThrowException(pauta);
+        ifSessionTimeIsOpenThrowException(pauta);
+
+        var votes = votoRepository.findByPautaId(pautaId);
+        long numberOfVotesYes = votes.stream()
+                .filter( vote -> vote.getVotoType().equals(VotoType.SIM))
+                .count();
+        long numberOfVotesNo = votes.size() - numberOfVotesYes;
+
         VotingResultDTO votingResultDTO = new VotingResultDTO();
+        var voteResult  = numberOfVotesYes > numberOfVotesNo ? DefaultValues.APPROVED : DefaultValues.NOT_APPROVED;
+        votingResultDTO.setResult(voteResult);
 
-        if(!pauta.isOpen()) {
-            logger.error("Pauta esta fechada");
-            throw Message.PAUTA_IS_CLOSED.asBusinessException();
-        }
+        logger.info("Resultado gerado para pauta {}", pauta );
+        return votingResultDTO;
+    }
 
-        //verifica se a sessão de votação ainda esta aberta
+    public void ifSessionTimeIsOpenThrowException(Pauta pauta) {
         var sessionEndTme = pauta.getSessionStartedTime().plusMinutes(pauta.getEndsIn());
         if(!sessionEndTme.isBefore(LocalDateTime.now())){
             logger.error("Sessão ainda esta aberta para votacao");
             throw Message.PAUTA_IS_OPEN.asBusinessException();
         }
+    }
 
-        //gerar resultado da pauta
-        var votos = votoRepository.findByPautaId(pautaId);
-        var yes = votos.stream().filter( x -> x.getVoto().equals(VotoType.SIM)).count();
-        var no = votos.stream().filter( x -> x.getVoto().equals(VotoType.NAO)).count();
-
-        if(yes > no) {
-            votingResultDTO.setResult(DefaultValues.APPROVED);
-        }else{
-            votingResultDTO.setResult(DefaultValues.NOT_APPROVED);
+    public void ifPautaIsClosedThrowException(Pauta pauta) {
+        if(!pauta.isOpen()) {
+            logger.error("Pauta esta fechada");
+            throw Message.PAUTA_IS_CLOSED.asBusinessException();
         }
+    }
 
-        logger.info("Resultado gerado para pauta {}", pauta );
-        return votingResultDTO;
+    public void ifPautaIsOpenThrowException(Pauta pauta) {
+        if(pauta.isOpen()){
+            logger.error("sessao já esta aberta");
+            throw Message.PAUTA_WAS_OPEN.asBusinessException();
+        }
     }
 }
